@@ -1,16 +1,28 @@
+from flask import Flask, jsonify, redirect, request, session, url_for
 from dotenv import load_dotenv
 import os
 import base64
 from requests import post, get
 import json
+from urllib.parse import urlencode
 
 load_dotenv()
 
-client_id = os.getenv("CLIENT_ID")
-client_secret = os.getenv("CLIENT_SECRET")
+app = Flask(__name__)
+app.secret_key = os.urandom(148)
+
+SPOTIFY_CLIENT_ID      = os.getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET  = os.getenv("SPOTIFY_CLIENT_SECRET")
+SPOTIFY_REDIRECT_URI   = os.getenv("SPOTIFY_REDIRECT_URI")
+
+SPOTIFY_AUTH_URL  = "https://accounts.spotify.com/authorize"
+SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
+SPOTIFY_API_URL   = "https://api.spotify.com/v1"
+SPOTIFY_SCOPES    = "user-top-read"
+
 
 def get_token():
-    auth_string = client_id + ":" + client_secret 
+    auth_string = SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET 
     auth_bytes = auth_string.encode("utf-8")
     auth_base64 = str(base64.b64encode(auth_bytes), "utf-8")
 
@@ -44,6 +56,7 @@ def search_for_artist(token, artist_name):
         print("No artists within this search exists")
         return None
     return json_result[0]
+
 def get_song_by_artist(token, artist_id):
     url = f"https://api.spotify.com/v1/artists/{artist_id}/top-tracks?country=US"
     headers = get_auth_header(token)
@@ -51,10 +64,18 @@ def get_song_by_artist(token, artist_id):
     json_result = json.loads(result.content)["tracks"]
     return json_result
 
-token = get_token()
-result = search_for_artist(token, 'Tru Concept')
-artist_id = result["id"]
-songs = get_song_by_artist(token, artist_id)
+@app.route("/login")
+def login():
+    auth_query_params = {
+        "response_type": "code",
+        "client_id": SPOTIFY_CLIENT_ID,
+        "scope" : SPOTIFY_SCOPES,
+        "redirect_uri": SPOTIFY_REDIRECT_URI
+    }
+    url_args = urlencode(auth_query_params)
+    auth_url = f"{SPOTIFY_AUTH_URL}?{url_args}"
+    return redirect(auth_url)
 
-for s in songs:
-    print(s["name"])
+@app.route("/callback")
+def callback():
+    auth_code = request.args.get('code')

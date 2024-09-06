@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, redirect, request, session, url_for
+from flask import Flask, render_template, redirect, request, session, url_for
 from dotenv import load_dotenv
 import os
 import base64
@@ -64,8 +64,8 @@ def get_song_by_artist(token, artist_id):
     json_result = json.loads(result.content)["tracks"]
     return json_result
 
-@app.route("/login")
-def login():
+@app.route("/")
+def index():
     auth_query_params = {
         "response_type": "code",
         "client_id": SPOTIFY_CLIENT_ID,
@@ -74,8 +74,45 @@ def login():
     }
     url_args = urlencode(auth_query_params)
     auth_url = f"{SPOTIFY_AUTH_URL}?{url_args}"
-    return redirect(auth_url)
+    return render_template("index.html", auth_url = auth_url)
+
+@app.route('/login')
+def login():
+    return redirect(url_for('index'))
 
 @app.route("/callback")
 def callback():
+    if 'error' in request.args:
+        error_message = request.args['error']
+        return render_template('error.html', error_message=error_message)
+
+    
     auth_code = request.args.get('code')
+    token_data = {
+        "grant_type": "authorization_code",
+        "code": auth_code,
+        "redirect_uri": SPOTIFY_REDIRECT_URI,
+        "client_id": SPOTIFY_CLIENT_ID,
+        "client_secret": SPOTIFY_CLIENT_SECRET
+    }
+    token_response = post(SPOTIFY_TOKEN_URL, data = token_data)
+    token_info = token_response.json()
+    
+    session['access_token'] = token_info.get('access_token')
+    return redirect(url_for('profile'))
+
+@app.route("/profile")
+def profile():
+    access_token = session.get('access_token')
+    if not access_token:
+        return redirect(url_for('index'))
+    
+    headers = {
+        'Authorization' : f'Bearer {access_token}'
+    } 
+    response = get(f"{SPOTIFY_API_URL}/me/top/artists?limit=5", headers = headers)
+    top_artists = response.json()
+    return f"Top Artists: {json.dumps(top_artists, indent=2)}"
+
+if __name__ == "__main__":
+    app.run(debug=True)

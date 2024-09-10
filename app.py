@@ -58,6 +58,7 @@ def callback():
         session['expires_at'] = datetime.now().timestamp() + 10
         return redirect('/playlists')
 
+@app.route('/most_repeats')
     
 @app.route('/playlists')
 def get_playlists():

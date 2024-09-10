@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/wilsonsoetomo/Desktop/Self Study/Wacky Music/WackyMusic/venv/bin/python3.11" "$0" "$@"
+'''exec' "/Users/wilsonsoetomo/Desktop/Self Study/Wackify/WackyMusic/venv/bin/python3.11" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

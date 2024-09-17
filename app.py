@@ -25,7 +25,7 @@ def index():
 
 @app.route('/login')
 def login():
-    scope = 'user-read-private user-read-email'
+    scope = 'user-read-private user-read-email user-top-read playlist-read-private'
 
     params = {
         'client_id': SPOTIFY_CLIENT_ID,
@@ -56,10 +56,20 @@ def callback():
 
         session['access_token'] = token_info['access_token']
         session['expires_at'] = datetime.now().timestamp() + 10
-        return redirect('/playlists')
-
-@app.route('/most_repeats')
+        return redirect('/weirdness-score')
     
+def get_artist(artist_id):
+    headers = {
+        'Authorization' : f"Bearer {session['access_token']}"
+    }
+    response = requests.get(SPOTIFY_API_URL + f'/artists/{artist_id}', headers = headers)
+
+    if response.status_code == 200:
+        artist_info = response.json()
+        return artist_info
+    else:
+        return None
+
 @app.route('/playlists')
 def get_playlists():
     if 'access_token' not in session:
@@ -77,6 +87,18 @@ def get_playlists():
     playlists = response.json()
 
     return jsonify(playlists)
+
+def get_user_top_tracks():
+    headers = {
+        'Authorization' : f"Bearer {session['access_token']}"
+    }
+
+    response = requests.get(SPOTIFY_API_URL + '/me/top/tracks', headers = headers)
+    if response.status_code == 200:
+        user_tracks = response.json()['items']
+        return user_tracks
+    else:
+        return None
 
 @app.route('/refresh-token')
 def refresh_token():
@@ -97,6 +119,21 @@ def refresh_token():
         session['expires_at'] =  datetime.now().timestamp() + new_token_info['expires_in']
 
         return redirect('/playlists')
+    
+@app.route('/weirdness-score')
+def calculate_weirdness_score():
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        print('TOKEN EXPIRED, REFRESHING....')
+        return redirect('/refresh-token')
+    user_tracks = get_user_top_tracks()
+
+    if not user_tracks:
+        return jsonify({
+            'error' : 'Could not fetch user tracks'
+        }), 400
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

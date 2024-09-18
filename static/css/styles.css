@@ -1,0 +1,88 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Body Styling with Floral Background */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: url('/static/images/floral-background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+}
+
+/* Container for the login box and result box */
+.container {
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white box */
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    backdrop-filter: blur(10px);
+}
+
+/* Title Styling */
+.container h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Subtitle/Description Styling (for login page) */
+.container p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+/* Box for displaying weirdness score (for result page) */
+.score-box {
+    font-size: 28px;
+    font-weight: bold;
+    color: #4CAF50;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* Login Button and Action Area Styling */
+.btn {
+    background-color: #FF69B4; /* Pink button to match floral theme */
+    color: white;
+    text-decoration: none;
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    display: inline-block;
+}
+
+.btn:hover {
+    background-color: #FF85C2;
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        padding: 30px;
+    }
+
+    .container h1 {
+        font-size: 28px;
+    }
+
+    .score-box {
+        font-size: 24px;
+    }
+}

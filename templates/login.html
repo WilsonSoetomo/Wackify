@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login - Spotify Weirdness App</title>
+    <!-- Use url_for to correctly link the static CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>Login with Spotify</h1>
+            <p>Discover how weird your music taste is!</p>
+            <a href="/login" class="login-button">Login with Spotify</a>
+        </div>
+    </div>
+</body>
+</html>

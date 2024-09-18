@@ -4,6 +4,7 @@ import os
 import requests
 from urllib.parse import urlencode
 from datetime import datetime
+import math
 
 load_dotenv()
 
@@ -21,7 +22,7 @@ SPOTIFY_SCOPES    = "user-top-read"
 
 @app.route('/')
 def index():
-    return "Welcome! Let's see how weird your music is <a href='/login'>Login with Spotify</a>"
+    return render_template('login.html')
 
 @app.route('/login')
 def login():
@@ -55,7 +56,8 @@ def callback():
         token_info = response.json()
 
         session['access_token'] = token_info['access_token']
-        session['expires_at'] = datetime.now().timestamp() + 10
+        session['expires_at'] = datetime.now().timestamp() + 3600
+
         return redirect('/weirdness-score')
     
 def get_artist(artist_id):
@@ -77,6 +79,7 @@ def get_playlists():
     
     if datetime.now().timestamp() > session['expires_at']:
         print('TOKEN EXPIRED, REFRESHING....')
+
         return redirect('/refresh-token')
     
     headers = {
@@ -120,7 +123,6 @@ def refresh_token():
 
         return redirect('/playlists')
     
-@app.route('/weirdness-score')
 def calculate_weirdness_score():
     if 'access_token' not in session:
         return redirect('/login')
@@ -134,6 +136,39 @@ def calculate_weirdness_score():
         return jsonify({
             'error' : 'Could not fetch user tracks'
         }), 400
+    popularity_sum = 0
+    artist_uniqueness = 0
+    total_tracks = len(user_tracks)
+
+    for track in user_tracks:
+        popularity_sum += track['popularity']
+        artist = get_artist(track['artists'][0]['id'])
+
+        if artist:
+            artist_uniqueness += artist['followers']['total']
+    
+    avg_popularity = popularity_sum / total_tracks
+    popularity_weirdness = 100 - avg_popularity
+
+    # Normalize artist uniqueness (fewer followers = weirder)
+    avg_artist_followers = artist_uniqueness / total_tracks
+
+    # Assuming max possible followers for normalization (e.g., 70 million)
+    max_followers = 70_000_000
+    artist_uniqueness = max(0, 100 - (avg_artist_followers / max_followers * 100))
+
+    final_weirdness = (popularity_weirdness * 0.2) + (artist_uniqueness * 0.8)
+
+    return round(final_weirdness, 0)
+
+@app.route('/weirdness-score')
+def show_weirdness():
+    if 'access_token' not in session:
+        return redirect(url_for('login'))
+
+    weirdness_score = calculate_weirdness_score()
+    
+    return render_template('weirdness.html', score=weirdness_score)
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

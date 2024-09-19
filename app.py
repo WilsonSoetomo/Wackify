@@ -163,12 +163,19 @@ def calculate_weirdness_score():
 
 @app.route('/weirdness-score')
 def show_weirdness():
-    if 'access_token' not in session:
-        return redirect(url_for('login'))
+    # Assume we have a calculated score
+    score = calculate_weirdness_score()  # Replace this with the actual calculation
 
-    weirdness_score = calculate_weirdness_score()
-    
-    return render_template('weirdness.html', score=weirdness_score)
+    # Determine message based on the score
+    if score > 75:
+        message = "That's some Wacky Taste!!!"
+    elif 40 <= score <= 74:
+        message = "You're pretty edgy!"
+    else:
+        message = "I guess you're pretty basic"
+
+    # Pass the score and message to the template
+    return render_template('weirdness.html', score=score, message=message)
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

@@ -8,10 +8,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
+    <!-- Logo Section -->
+    <header>
+        <div class="logo">Wackify</div>
+    </header>
+
+    <!-- Result Container -->
     <div class="result-container">
-        <h1>Your Weirdness Score</h1>
         <div class="score-box">
-            <p>Your music taste weirdness score is: <strong>{{ score }} / 100</strong></p>
+            <h1>Your Weirdness Score</h1>
+            <p><strong>{{ score }} / 100</strong></p>
+            <!-- Display the dynamic message -->
+            <p class="message">{{ message }}</p>
         </div>
         <div class="actions">
             <a href="/" class="btn">Back to Home</a>

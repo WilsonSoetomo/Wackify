@@ -9,8 +9,8 @@ export default function Home() {
   const handleSpotifyLogin = async () => {
     setIsLoading(true);
     try {
-      // Redirect to backend Spotify login
-      window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/spotify-login`;
+      // Redirect to our API route for Spotify login
+      window.location.href = '/api/spotify-login';
     } catch (error) {
       console.error('Login error:', error);
     } finally {

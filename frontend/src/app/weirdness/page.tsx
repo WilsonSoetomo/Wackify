@@ -31,8 +31,7 @@ export default function WeirdnessPage() {
   useEffect(() => {
     const fetchWeirdnessData = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
-        const response = await fetch(`${backendUrl}/api/weirdness`, {
+        const response = await fetch('/api/weirdness', {
           credentials: 'include',
         });
 
@@ -53,16 +52,14 @@ export default function WeirdnessPage() {
   }, []);
 
   const handleAnalyzeAgain = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/spotify-login`;
+    window.location.href = '/api/spotify-login';
   };
 
   const handleLogout = async () => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
-      await fetch(`${backendUrl}/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
+      // Clear cookies by setting them to expire
+      document.cookie = 'spotify_access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'spotify_refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       window.location.href = '/';
     } catch (err) {
       console.error('Logout error:', err);
